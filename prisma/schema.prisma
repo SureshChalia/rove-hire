@@ -1,0 +1,157 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum CandidateStatus {
+  Applied
+  FormSubmitted
+  InterviewScheduled
+  OfferSent
+  Hired
+  Rejected
+}
+
+enum JobStatus {
+  Open
+  Closed
+}
+
+enum InterviewType {
+  Screening
+  Technical
+}
+
+enum InterviewStatus {
+  Scheduled
+  Completed
+  Cancelled
+}
+
+enum Recommendation {
+  Hire
+  Maybe
+  NoHire
+}
+
+model User {
+  id        String   @id @default(cuid())
+  name      String
+  email     String   @unique
+  password  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  jobs Job[]
+}
+
+model Job {
+  id          String    @id @default(cuid())
+  title       String
+  description String    @db.Text
+  skills      String[]
+  status      JobStatus @default(Open)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  createdById String
+  createdBy   User   @relation(fields: [createdById], references: [id], onDelete: Cascade)
+
+  candidates Candidate[]
+}
+
+model Candidate {
+  id String @id @default(cuid())
+
+  name  String
+  email String @unique
+
+  phone             String?
+  location          String?
+  currentRole       String?
+  noticePeriod      String?
+  salaryExpectation String?
+  linkedin          String?
+
+  resumeUrl String
+
+  status CandidateStatus @default(Applied)
+
+  magicToken    String?   @unique
+  tokenExpiry   DateTime?
+  formSubmitted Boolean   @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  jobId String
+  job   Job    @relation(fields: [jobId], references: [id], onDelete: Cascade)
+
+  interviews Interview[]
+  timelines  Timeline[]
+  documents  OfferDocument[]
+}
+
+model Interview {
+  id String @id @default(cuid())
+
+  interviewDate DateTime
+
+  interviewer String
+
+  type InterviewType
+
+  notes String? @db.Text
+
+  status InterviewStatus @default(Scheduled)
+
+  recommendation Recommendation?
+
+  feedback String? @db.Text
+
+  createdAt DateTime @default(now())
+
+  candidateId String
+  candidate   Candidate @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+}
+
+model Timeline {
+  id String @id @default(cuid())
+
+  title String
+
+  description String? @db.Text
+
+  createdAt DateTime @default(now())
+
+  candidateId String
+  candidate   Candidate @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+}
+
+model OfferDocument {
+  id String @id @default(cuid())
+
+  roleTitle String
+
+  salary String
+
+  startDate DateTime
+
+  reportingManager String
+
+  location String
+
+  offerPdfUrl String
+
+  ndaPdfUrl String
+
+  createdAt DateTime @default(now())
+
+  candidateId String
+  candidate   Candidate @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+}
