@@ -11,6 +11,7 @@ enum CandidateStatus {
   Applied
   FormSubmitted
   InterviewScheduled
+  InterviewCompleted
   OfferSent
   Hired
   Rejected
@@ -35,7 +36,7 @@ enum InterviewStatus {
 enum Recommendation {
   Hire
   Maybe
-  NoHire
+  Reject
 }
 
 model User {
@@ -55,7 +56,11 @@ model Job {
   description String    @db.Text
   skills      String[]
   status      JobStatus @default(Open)
-
+  department     String?
+  location       String?
+  employmentType String?
+  experience     String?
+  salary         String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -101,6 +106,9 @@ model Interview {
   id String @id @default(cuid())
 
   interviewDate DateTime
+  interviewTime String
+  duration String
+  meetingLink String?
 
   interviewer String
 
@@ -113,6 +121,7 @@ model Interview {
   recommendation Recommendation?
 
   feedback String? @db.Text
+  rating Int?
 
   createdAt DateTime @default(now())
 
