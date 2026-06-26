@@ -2,7 +2,7 @@ export type InterviewType = "Screening" | "Technical";
 
 export type InterviewStatus = "Scheduled" | "Completed" | "Cancelled";
 
-export type Recommendation = "Hire" | "Maybe" | "Reject";
+export type Recommendation = "Hire" | "Maybe" | "NoHire";
 
 export interface InterviewCandidateSummary {
   id: string;
@@ -18,8 +18,8 @@ export interface InterviewCandidateSummary {
 export interface InterviewRecord {
   id: string;
   interviewDate: Date;
-  interviewTime: string;
-  duration: string;
+  interviewTime?: string | null;
+  duration?: string | null;
   meetingLink?: string | null;
   interviewer: string;
   type: InterviewType;
@@ -38,8 +38,8 @@ export interface CreateInterviewPayload {
   interviewer: string;
   type: InterviewType;
   interviewDate: Date;
-  interviewTime: string;
-  duration: string;
+  interviewTime?: string | null;
+  duration?: string | null;
   meetingLink?: string | null;
   notes?: string | null;
   status?: InterviewStatus;
@@ -54,9 +54,9 @@ export interface InterviewFormValues {
   interviewer: string;
   type: InterviewType;
   interviewDate: string;
-  interviewTime: string;
-  duration: string;
-  meetingLink: string;
+  interviewTime?: string | null;
+  duration?: string | null;
+  meetingLink?: string | null;  
   notes: string;
   status: InterviewStatus;
 }

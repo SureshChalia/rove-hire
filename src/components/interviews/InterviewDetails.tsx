@@ -18,7 +18,7 @@ interface Props {
     type: "Screening" | "Technical";
     notes?: string | null;
     status: "Scheduled" | "Completed" | "Cancelled";
-    recommendation?: "Hire" | "Maybe" | "Reject" | null;
+    recommendation?: "Hire" | "Maybe" |  "NoHire" | null;
     feedback?: string | null;
     rating?: number | null;
     candidate?: {
@@ -35,7 +35,7 @@ interface Props {
 
 export default function InterviewDetails({ interview }: Props) {
   const [pending, startTransition] = useTransition();
-  const [recommendation, setRecommendation] = useState<"Hire" | "Maybe" | "Reject">("Hire");
+  const [recommendation, setRecommendation] = useState<"Hire" | "Maybe" |  "NoHire">("Hire");
   const [feedback, setFeedback] = useState("");
   const [rating, setRating] = useState(5);
 
@@ -109,11 +109,11 @@ export default function InterviewDetails({ interview }: Props) {
                 <select
                   className="mt-1 flex h-10 w-full rounded-lg border border-input bg-background px-3 py-2 text-sm shadow-sm outline-none"
                   value={recommendation}
-                  onChange={(event) => setRecommendation(event.target.value as "Hire" | "Maybe" | "Reject")}
+                  onChange={(event) => setRecommendation(event.target.value as "Hire" | "Maybe" |  "NoHire")}
                 >
                   <option value="Hire">Hire</option>
                   <option value="Maybe">Maybe</option>
-                  <option value="Reject">Reject</option>
+                  <option value= "NoHire">Reject</option>
                 </select>
               </div>
               <div>

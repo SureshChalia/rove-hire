@@ -72,7 +72,7 @@ export async function deleteInterviewAction(id: string) {
 
 export async function completeInterviewAction(
   id: string,
-  recommendation: "Hire" | "Maybe" | "Reject",
+  recommendation: "Hire" | "Maybe" |  "NoHire",
   feedback?: string | null,
   rating?: number | null
 ) {

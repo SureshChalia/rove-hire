@@ -132,7 +132,7 @@ export async function completeInterview(
       },
       data: {
         status: "Completed",
-        recommendation: recommendation as "Hire" | "Maybe" | "Reject",
+        recommendation: recommendation as "Hire" | "Maybe" |  "NoHire",
         feedback: feedback ?? null,
         rating: rating ?? null,
       },
@@ -144,7 +144,7 @@ export async function completeInterview(
       candidateStatus = "OfferSent";
     }
 
-    if (recommendation === "Reject") {
+    if (recommendation ===  "NoHire") {
       candidateStatus = "Rejected";
     }
 
@@ -185,11 +185,11 @@ export async function completeInterview(
       });
     }
 
-    if (recommendation === "Reject") {
+    if (recommendation ===  "NoHire") {
       await tx.timeline.create({
         data: {
           candidateId: interview.candidateId,
-          title: "Reject",
+          title:  "NoHire",
           description: "Candidate was rejected after the interview.",
         },
       });

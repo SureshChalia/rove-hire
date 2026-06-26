@@ -20,8 +20,8 @@ export interface OfferRecord {
   startDate: Date;
   reportingManager: string;
   location: string;
-  offerPdf?: Buffer | null;
-  ndaPdf?: Buffer | null;
+ offerPdf?: Uint8Array | null;
+  ndaPdf?: Uint8Array | null;
   offerFileName?: string | null;
   offerMimeType?: string | null;
   offerFileSize?: number | null;
@@ -43,19 +43,18 @@ export interface CreateOfferPayload {
   reportingManager: string;
   location: string;
 
-  offerPdf?: Buffer;
-  offerFileName?: string;
-  offerMimeType?: string;
-  offerFileSize?: number;
+  offerPdf: Uint8Array;
+  offerFileName: string;
+  offerMimeType: string;
+  offerFileSize: number;
 
-  ndaPdf?: Buffer;
-  ndaFileName?: string;
-  ndaMimeType?: string;
-  ndaFileSize?: number;
+  ndaPdf: Uint8Array;
+  ndaFileName: string;
+  ndaMimeType: string;
+  ndaFileSize: number;
 }
 
-export interface UpdateOfferPayload
-  extends Partial<CreateOfferPayload> {
+export interface UpdateOfferPayload extends CreateOfferPayload {
   id: string;
 }
 

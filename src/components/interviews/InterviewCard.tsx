@@ -20,7 +20,7 @@ interface Props {
     type: "Screening" | "Technical";
     notes?: string | null;
     status: "Scheduled" | "Completed" | "Cancelled";
-    recommendation?: "Hire" | "Maybe" | "Reject" | null;
+    recommendation?: "Hire" | "Maybe" |  "NoHire" | null;
     feedback?: string | null;
     candidateId: string;
     candidate?: {
