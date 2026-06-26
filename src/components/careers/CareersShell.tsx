@@ -19,23 +19,46 @@ export function CareersHeader() {
     <header className="sticky top-0 z-40 border-b border-slate-200/70 bg-white/90 backdrop-blur-xl">
       <div className="mx-auto flex h-18 max-w-7xl items-center justify-between px-5 sm:px-8">
         <RoveLogo href="/careers" />
+
         <nav className="hidden items-center gap-8 text-sm font-medium text-slate-600 md:flex">
-          <Link href="/careers#about" className="transition hover:text-blue-600">
+          <Link
+            href="/careers#about"
+            className="transition hover:text-blue-600"
+          >
             About
           </Link>
-          <Link href="/careers#benefits" className="transition hover:text-blue-600">
+
+          <Link
+            href="/careers#benefits"
+            className="transition hover:text-blue-600"
+          >
             Benefits
           </Link>
-          <Link href="/careers#open-positions" className="transition hover:text-blue-600">
-            Open roles
+
+          <Link
+            href="/careers#open-positions"
+            className="transition hover:text-blue-600"
+          >
+            Open Roles
           </Link>
         </nav>
-        <Link
-          href="/careers#open-positions"
-          className="inline-flex h-10 items-center gap-2 rounded-xl bg-slate-950 px-4 text-sm font-semibold text-white transition hover:bg-blue-600"
-        >
-          View roles <ArrowRight className="h-4 w-4" />
-        </Link>
+
+        <div className="flex items-center gap-3">
+          <Link
+            href="/auth/login"
+            className="inline-flex h-10 items-center rounded-xl border border-slate-300 px-4 text-sm font-semibold text-slate-700 transition hover:border-blue-600 hover:text-blue-600"
+          >
+            HR Login
+          </Link>
+
+          <Link
+            href="/careers#open-positions"
+            className="inline-flex h-10 items-center gap-2 rounded-xl bg-slate-950 px-4 text-sm font-semibold text-white transition hover:bg-blue-600"
+          >
+            View Roles
+            <ArrowRight className="h-4 w-4" />
+          </Link>
+        </div>
       </div>
     </header>
   );
