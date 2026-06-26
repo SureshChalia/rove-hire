@@ -33,7 +33,7 @@ export default async function InterviewDetailsPage({ params }: Props) {
           type: interview.type,
           notes: interview.notes,
           status: interview.status,
-          recommendation: interview.recommendation ?? null,
+          recommendation: interview.recommendation ?? undefined,
           feedback: interview.feedback,
           rating: interview.rating,
           candidate: interview.candidate,

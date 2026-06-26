@@ -19,7 +19,7 @@ interface Props {
     type: "Screening" | "Technical";
     notes?: string | null;
     status: "Scheduled" | "Completed" | "Cancelled";
-    recommendation?: Recommendation | null;
+    recommendation?: Recommendation | null | undefined;
     feedback?: string | null;
     rating?: number | null;
     candidate?: {
