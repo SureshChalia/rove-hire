@@ -23,22 +23,22 @@ export default async function InterviewDetailsPage({ params }: Props) {
       </div>
 
       <InterviewDetails
-  interview={{
-    id: interview.id,
-    interviewDate: interview.interviewDate,
-    interviewTime: interview.interviewTime ?? "",
-    duration: interview.duration ?? "",
-    meetingLink: interview.meetingLink ?? "",
-    interviewer: interview.interviewer,
-    type: interview.type,
-    notes: interview.notes,
-    status: interview.status,
-    recommendation: interview.recommendation,
-    feedback: interview.feedback,
-    rating: interview.rating,
-    candidate: interview.candidate,
-  }}
-/>
+        interview={{
+          id: interview.id,
+          interviewDate: interview.interviewDate,
+          interviewTime: interview.interviewTime ?? "",
+          duration: interview.duration ?? "",
+          meetingLink: interview.meetingLink ?? "",
+          interviewer: interview.interviewer,
+          type: interview.type,
+          notes: interview.notes,
+          status: interview.status,
+          recommendation: interview.recommendation ?? null,
+          feedback: interview.feedback,
+          rating: interview.rating,
+          candidate: interview.candidate,
+        }}
+      />
     </div>
   );
 }
