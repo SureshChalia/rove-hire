@@ -100,9 +100,9 @@ model OfferDocument {
   ndaMimeType      String?
   ndaPdf           Bytes?
   offerFileName    String?
+  offerPdf         Bytes?
   offerFileSize    Int?
   offerMimeType    String?
-  offerPdf         Bytes?
   candidate        Candidate @relation(fields: [candidateId], references: [id], onDelete: Cascade)
 }
 
