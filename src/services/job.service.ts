@@ -40,6 +40,26 @@ export async function getJobById(id: string) {
   });
 }
 
+export async function getOpenJobs() {
+  return prisma.job.findMany({
+    where: {
+      status: "Open",
+    },
+    orderBy: {
+      createdAt: "desc",
+    },
+  });
+}
+
+export async function getOpenJobById(id: string) {
+  return prisma.job.findFirst({
+    where: {
+      id,
+      status: "Open",
+    },
+  });
+}
+
 export async function createJob(
   data: CreateJobPayload,
   createdById: string
@@ -64,7 +84,6 @@ export async function createJob(
 
       createdById,
     },
-    cmqtgjvq60000uto0wqj8kykl
   });
 }
 

@@ -35,6 +35,8 @@ export default async function CandidateDetailsPage({ params }: Props) {
           salaryExpectation: candidate.salaryExpectation,
           resumeUrl: candidate.resumeUrl,
           status: candidate.status,
+          magicToken: candidate.magicToken,
+          formSubmitted: candidate.formSubmitted,
           createdAt: candidate.createdAt,
           job: candidate.job,
           interviews: candidate.interviews,

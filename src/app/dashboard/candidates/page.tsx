@@ -1,5 +1,8 @@
 import { Suspense } from "react";
+import { Users } from "lucide-react";
+
 import { CandidateForm, CandidateGrid } from "@/components/candidates";
+import EmptyState from "@/components/shared/EmptyState";
 import { getCandidates } from "@/services/candidate.service";
 import { getJobs } from "@/services/job.service";
 import { Button } from "@/components/ui/button";
@@ -46,13 +49,12 @@ export default async function CandidatesPage({
       </div>
 
       {candidates.length === 0 ? (
-        <div className="rounded-2xl border border-dashed bg-white p-8 text-center shadow-sm sm:p-12">
-          <h2 className="text-xl font-semibold">No candidates yet</h2>
-          <p className="mt-2 text-sm text-slate-500 sm:text-base">Add your first candidate to start managing applicants.</p>
-          <div className="mt-6 flex justify-center">
-            <CandidateForm jobs={jobOptions} />
-          </div>
-        </div>
+        <EmptyState
+          icon={Users}
+          title="No candidates yet"
+          description="Add your first candidate to start managing applicants, resumes, and pipeline activity."
+          action={<CandidateForm jobs={jobOptions} />}
+        />
       ) : (
         <Suspense fallback={<div className="text-sm text-slate-500">Loading candidates...</div>}>
           <CandidateGrid
@@ -69,6 +71,8 @@ export default async function CandidatesPage({
               jobId: candidate.jobId,
               resumeUrl: candidate.resumeUrl,
               status: candidate.status,
+              magicToken: candidate.magicToken,
+              formSubmitted: candidate.formSubmitted,
               createdAt: candidate.createdAt,
               job: candidate.job,
             }))}

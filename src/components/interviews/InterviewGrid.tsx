@@ -1,4 +1,8 @@
+import { CalendarClock } from "lucide-react";
+
+import EmptyState from "@/components/shared/EmptyState";
 import InterviewCard from "./InterviewCard";
+import InterviewForm from "./InterviewForm";
 
 interface Props {
   interviews: Array<{
@@ -37,16 +41,23 @@ interface Props {
 export default function InterviewGrid({ interviews, candidates }: Props) {
   if (!interviews.length) {
     return (
-      <div className="rounded-2xl border border-dashed bg-slate-50 p-10 text-center text-slate-500">
-        No interviews scheduled yet.
-      </div>
+      <EmptyState
+        icon={CalendarClock}
+        title="No interviews scheduled yet"
+        description="Schedule your first interview to move candidates through the hiring pipeline."
+        action={<InterviewForm candidates={candidates} />}
+      />
     );
   }
 
   return (
     <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
       {interviews.map((interview) => (
-        <InterviewCard key={interview.id} interview={interview} candidates={candidates} />
+        <InterviewCard
+          key={interview.id}
+          interview={interview}
+          candidates={candidates}
+        />
       ))}
     </div>
   );

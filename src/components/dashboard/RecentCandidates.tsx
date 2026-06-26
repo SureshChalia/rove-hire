@@ -1,3 +1,5 @@
+import { format } from "date-fns";
+
 interface Props {
   candidates: Array<{
     id: string;
@@ -66,7 +68,7 @@ export default function RecentCandidates({ candidates }: Props) {
               </td>
 
               <td>
-                {new Date(candidate.createdAt).toLocaleDateString()}
+                {format(new Date(candidate.createdAt), "dd MMM yyyy")}
               </td>
 
             </tr>

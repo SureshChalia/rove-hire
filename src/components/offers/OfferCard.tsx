@@ -18,6 +18,7 @@ import {
   markOfferAcceptedAction,
   markOfferRejectedAction,
 } from "@/actions/offer.actions";
+import DeleteConfirmDialog from "@/components/shared/DeleteConfirmDialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import type { OfferRecord, OfferStatus } from "@/types/offer";
@@ -59,10 +60,6 @@ export default function OfferCard({ offer, candidates }: Props) {
     });
   };
 
-  const handleDelete = () => {
-    if (!window.confirm("Delete this offer and its generated PDFs?")) return;
-    runAction(deleteOfferAction);
-  };
 
   return (
     <div className="rounded-2xl border bg-white p-5 shadow-sm transition hover:shadow-md sm:p-6">
@@ -139,14 +136,20 @@ export default function OfferCard({ offer, candidates }: Props) {
           }}
           candidates={candidates}
         />
-        <Button
-          size="sm"
-          variant="destructive"
-          disabled={pending}
-          onClick={handleDelete}
-        >
-          <Trash2 className="mr-1 h-4 w-4" /> Delete
-        </Button>
+        <DeleteConfirmDialog
+          onConfirm={async () => {
+            const result = await deleteOfferAction(offer.id);
+            if (!result.success) {
+              setError(result.message || "Unable to delete the offer.");
+              throw new Error(result.message);
+            }
+          }}
+          trigger={
+            <Button size="sm" variant="destructive" disabled={pending}>
+              <Trash2 className="mr-1 h-4 w-4" /> Delete
+            </Button>
+          }
+        />
       </div>
 
       {status === "Sent" ? (
@@ -156,7 +159,8 @@ export default function OfferCard({ offer, candidates }: Props) {
             disabled={pending}
             onClick={() => runAction(markOfferAcceptedAction)}
           >
-            <CheckCircle2 className="mr-1 h-4 w-4" /> Mark Accepted
+            <CheckCircle2 className="mr-1 h-4 w-4" />{" "}
+            {pending ? "Updating..." : "Mark Accepted"}
           </Button>
           <Button
             size="sm"
@@ -164,7 +168,8 @@ export default function OfferCard({ offer, candidates }: Props) {
             disabled={pending}
             onClick={() => runAction(markOfferRejectedAction)}
           >
-            <XCircle className="mr-1 h-4 w-4" /> Mark Rejected
+            <XCircle className="mr-1 h-4 w-4" />{" "}
+            {pending ? "Updating..." : "Mark Rejected"}
           </Button>
         </div>
       ) : null}

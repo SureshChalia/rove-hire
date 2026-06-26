@@ -7,14 +7,14 @@ export default async function DashboardPage() {
   const data = await getDashboardStats();
 
   return (
-    <div>
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold">
+    <div className="space-y-8">
+      <div>
+        <h1 className="text-3xl font-bold tracking-tight text-slate-950">
           Dashboard
         </h1>
 
-        <p className="text-gray-500 mt-2">
-          Welcome back 👋
+        <p className="mt-2 text-slate-500">
+          Welcome back. Here is a snapshot of your hiring pipeline.
         </p>
       </div>
 

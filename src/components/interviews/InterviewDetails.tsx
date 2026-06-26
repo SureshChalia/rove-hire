@@ -138,7 +138,9 @@ export default function InterviewDetails({ interview }: Props) {
                 placeholder="Share the interviewer notes"
               />
             </div>
-            <Button type="submit" disabled={pending}>Mark as Completed</Button>
+            <Button type="submit" disabled={pending}>
+              {pending ? "Submitting..." : "Mark as Completed"}
+            </Button>
           </form>
         </div>
       ) : (

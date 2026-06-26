@@ -2,6 +2,7 @@ export type CandidateStatus =
   | "Applied"
   | "FormSubmitted"
   | "InterviewScheduled"
+  | "InterviewCompleted"
   | "OfferSent"
   | "Hired"
   | "Rejected";
@@ -38,6 +39,9 @@ export interface CandidateRecord {
   salaryExpectation?: string | null;
   resumeUrl: string;
   status: CandidateStatus;
+  magicToken?: string | null;
+  tokenExpiry?: Date | null;
+  formSubmitted?: boolean;
   createdAt: Date;
   updatedAt: Date;
   jobId: string;
@@ -61,6 +65,9 @@ export interface CreateCandidatePayload {
   resumeUrl?: string;
   status?: CandidateStatus;
   jobId: string;
+  magicToken?: string | null;
+  tokenExpiry?: Date | null;
+  formSubmitted?: boolean;
 }
 
 export interface UpdateCandidatePayload extends Partial<CreateCandidatePayload> {

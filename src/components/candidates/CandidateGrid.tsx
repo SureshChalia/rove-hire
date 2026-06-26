@@ -14,6 +14,8 @@ interface Props {
     jobId?: string;
     resumeUrl?: string;
     status: string;
+    magicToken?: string | null;
+    formSubmitted?: boolean;
     createdAt: Date;
     job?: {
       title: string;

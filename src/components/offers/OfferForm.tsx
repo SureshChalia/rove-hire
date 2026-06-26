@@ -260,7 +260,9 @@ export default function OfferForm({
               </Button>
               <Button type="submit" disabled={pending}>
                 {pending
-                  ? "Generating PDFs..."
+                  ? offer
+                    ? "Updating..."
+                    : "Generating..."
                   : offer
                     ? "Update Offer"
                     : "Generate Offer"}

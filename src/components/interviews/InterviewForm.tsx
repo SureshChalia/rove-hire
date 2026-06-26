@@ -274,7 +274,13 @@ export default function InterviewForm({ interview, candidates, triggerLabel }: P
                 Cancel
               </Button>
               <Button type="submit" disabled={pending}>
-                {pending ? "Saving..." : interview ? "Update Interview" : "Schedule Interview"}
+                {pending
+                  ? interview
+                    ? "Updating..."
+                    : "Scheduling..."
+                  : interview
+                    ? "Update Interview"
+                    : "Schedule Interview"}
               </Button>
             </DialogFooter>
           </form>

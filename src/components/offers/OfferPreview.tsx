@@ -159,14 +159,16 @@ export default function OfferPreview({ offer, candidates }: Props) {
               disabled={pending}
               onClick={() => updateStatus(markOfferAcceptedAction)}
             >
-              <CheckCircle2 className="mr-1 h-4 w-4" /> Mark Accepted
+              <CheckCircle2 className="mr-1 h-4 w-4" />{" "}
+              {pending ? "Updating..." : "Mark Accepted"}
             </Button>
             <Button
               variant="destructive"
               disabled={pending}
               onClick={() => updateStatus(markOfferRejectedAction)}
             >
-              <XCircle className="mr-1 h-4 w-4" /> Mark Rejected
+              <XCircle className="mr-1 h-4 w-4" />{" "}
+              {pending ? "Updating..." : "Mark Rejected"}
             </Button>
           </>
         ) : null}

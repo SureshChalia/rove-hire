@@ -2,6 +2,7 @@ import Link from "next/link";
 import { CalendarDays, Download, BriefcaseBusiness, Mail, Phone, MapPin, BadgeCheck, FileText } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import MagicLinkActions from "./MagicLinkActions";
 
 interface Props {
   candidate: {
@@ -16,6 +17,8 @@ interface Props {
     salaryExpectation?: string | null;
     resumeUrl?: string;
     status: string;
+    magicToken?: string | null;
+    formSubmitted?: boolean;
     createdAt: Date;
     job?: {
       title: string;
@@ -55,6 +58,9 @@ export default function CandidateDetails({ candidate }: Props) {
                 <Download className="mr-2 h-4 w-4" /> Download Resume
               </a>
             </Button>
+          ) : null}
+          {candidate.magicToken && !candidate.formSubmitted ? (
+            <MagicLinkActions applicationPath={`/apply/${candidate.magicToken}`} />
           ) : null}
         </div>
 

@@ -1,5 +1,9 @@
+import { FileBadge } from "lucide-react";
+
+import EmptyState from "@/components/shared/EmptyState";
 import type { OfferRecord } from "@/types/offer";
 import OfferCard from "./OfferCard";
+import OfferForm from "./OfferForm";
 
 interface Props {
   offers: OfferRecord[];
@@ -16,12 +20,12 @@ interface Props {
 export default function OfferGrid({ offers, candidates }: Props) {
   if (!offers.length) {
     return (
-      <div className="rounded-2xl border border-dashed bg-white p-10 text-center shadow-sm">
-        <h2 className="text-lg font-semibold text-slate-900">No offers yet</h2>
-        <p className="mt-2 text-sm text-slate-500">
-          Generate an offer to create the offer letter and NDA.
-        </p>
-      </div>
+      <EmptyState
+        icon={FileBadge}
+        title="No offers yet"
+        description="Generate an offer to create the offer letter and NDA for your shortlisted candidates."
+        action={<OfferForm candidates={candidates} />}
+      />
     );
   }
 

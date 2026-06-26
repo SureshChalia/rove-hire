@@ -1,9 +1,23 @@
+import { randomBytes } from "crypto";
+
 import { prisma } from "@/lib/prisma";
 import {
   CandidateWithRelations,
   CreateCandidatePayload,
   UpdateCandidatePayload,
 } from "@/types/candidate";
+
+const TOKEN_VALIDITY_DAYS = 14;
+
+function createMagicToken() {
+  return randomBytes(32).toString("hex");
+}
+
+function createTokenExpiry() {
+  const expiry = new Date();
+  expiry.setDate(expiry.getDate() + TOKEN_VALIDITY_DAYS);
+  return expiry;
+}
 
 export async function getCandidates(search?: string) {
   const candidates = await prisma.candidate.findMany({
@@ -79,6 +93,9 @@ export async function createCandidate(data: CreateCandidatePayload) {
       resumeUrl: data.resumeUrl ?? "",
       status: data.status ?? "Applied",
       jobId: data.jobId,
+      magicToken: data.magicToken ?? createMagicToken(),
+      tokenExpiry: data.tokenExpiry ?? createTokenExpiry(),
+      formSubmitted: data.formSubmitted ?? false,
     },
   });
 }
@@ -99,6 +116,9 @@ export async function updateCandidate(data: UpdateCandidatePayload) {
   if (rest.resumeUrl !== undefined) updateData.resumeUrl = rest.resumeUrl ?? "";
   if (rest.status !== undefined) updateData.status = rest.status;
   if (rest.jobId !== undefined) updateData.jobId = rest.jobId;
+  if (rest.magicToken !== undefined) updateData.magicToken = rest.magicToken;
+  if (rest.tokenExpiry !== undefined) updateData.tokenExpiry = rest.tokenExpiry;
+  if (rest.formSubmitted !== undefined) updateData.formSubmitted = rest.formSubmitted;
 
   return prisma.candidate.update({
     where: {
@@ -113,5 +133,170 @@ export async function deleteCandidate(id: string) {
     where: {
       id,
     },
+  });
+}
+
+export async function startCandidateApplication(data: {
+  name: string;
+  email: string;
+  jobId: string;
+}) {
+  const job = await prisma.job.findFirst({
+    where: {
+      id: data.jobId,
+      status: "Open",
+    },
+    select: {
+      id: true,
+    },
+  });
+
+  if (!job) {
+    throw new Error("This position is no longer accepting applications.");
+  }
+
+  const magicToken = createMagicToken();
+  const tokenExpiry = createTokenExpiry();
+  const existingCandidate = await prisma.candidate.findUnique({
+    where: {
+      email: data.email,
+    },
+    select: {
+      id: true,
+      status: true,
+      formSubmitted: true,
+      jobId: true,
+    },
+  });
+
+  if (existingCandidate) {
+    if (existingCandidate.formSubmitted && existingCandidate.jobId === data.jobId) {
+      throw new Error("You have already submitted an application for this role.");
+    }
+
+    return prisma.candidate.update({
+      where: {
+        id: existingCandidate.id,
+      },
+      data: {
+        name: data.name,
+        jobId: data.jobId,
+        magicToken,
+        tokenExpiry,
+        formSubmitted: false,
+        status:
+          existingCandidate.status === "Applied" ||
+          existingCandidate.status === "FormSubmitted"
+            ? "Applied"
+            : existingCandidate.status,
+      },
+    });
+  }
+
+  return prisma.candidate.create({
+    data: {
+      name: data.name,
+      email: data.email,
+      resumeUrl: "",
+      status: "Applied",
+      jobId: data.jobId,
+      magicToken,
+      tokenExpiry,
+      formSubmitted: false,
+    },
+  });
+}
+
+export async function getCandidateApplicationByToken(token: string) {
+  return prisma.candidate.findUnique({
+    where: {
+      magicToken: token,
+    },
+    include: {
+      job: true,
+    },
+  });
+}
+
+export async function submitCandidateApplication(
+  token: string,
+  data: {
+    name: string;
+    email: string;
+    phone: string;
+    location: string;
+    currentRole: string;
+    noticePeriod: string;
+    salaryExpectation: string;
+    linkedin: string;
+    resumeUrl: string;
+  }
+) {
+  return prisma.$transaction(async (tx) => {
+    const candidate = await tx.candidate.findFirst({
+      where: {
+        magicToken: token,
+        tokenExpiry: {
+          gt: new Date(),
+        },
+        formSubmitted: false,
+      },
+      select: {
+        id: true,
+        jobId: true,
+      },
+    });
+
+    if (!candidate) {
+      throw new Error("This application link is invalid, expired, or already used.");
+    }
+
+    const job = await tx.job.findFirst({
+      where: {
+        id: candidate.jobId,
+        status: "Open",
+      },
+      select: {
+        id: true,
+      },
+    });
+
+    if (!job) {
+      throw new Error("This position is no longer accepting applications.");
+    }
+
+    const update = await tx.candidate.updateMany({
+      where: {
+        id: candidate.id,
+        magicToken: token,
+        tokenExpiry: {
+          gt: new Date(),
+        },
+        formSubmitted: false,
+      },
+      data: {
+        ...data,
+        formSubmitted: true,
+        status: "FormSubmitted",
+      },
+    });
+
+    if (update.count !== 1) {
+      throw new Error("This application link has already been used.");
+    }
+
+    await tx.timeline.create({
+      data: {
+        candidateId: candidate.id,
+        title: "Form Submitted",
+        description: "Candidate completed the public application form.",
+      },
+    });
+
+    return tx.candidate.findUniqueOrThrow({
+      where: {
+        id: candidate.id,
+      },
+    });
   });
 }

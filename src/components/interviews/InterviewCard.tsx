@@ -6,6 +6,7 @@ import { CalendarDays, Clock3, Eye, Trash2, CheckCircle2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { deleteInterviewAction, changeInterviewStatusAction } from "@/actions/interview.actions";
+import DeleteConfirmDialog from "@/components/shared/DeleteConfirmDialog";
 import InterviewForm from "./InterviewForm";
 
 interface Props {
@@ -109,14 +110,18 @@ export default function InterviewCard({ interview, candidates }: Props) {
           candidates={candidates}
           triggerLabel="Edit"
         />
-        <form action={deleteInterviewAction.bind(null, interview.id)}>
-          <Button size="sm" variant="destructive">
-            <Trash2 className="mr-1 h-4 w-4" /> Delete
-          </Button>
-        </form>
+        <DeleteConfirmDialog
+          onConfirm={() => deleteInterviewAction(interview.id)}
+          trigger={
+            <Button size="sm" variant="destructive">
+              <Trash2 className="mr-1 h-4 w-4" /> Delete
+            </Button>
+          }
+        />
         {interview.status !== "Completed" && (
           <Button size="sm" variant="secondary" onClick={handleComplete} disabled={pending}>
-            <CheckCircle2 className="mr-1 h-4 w-4" /> Complete
+            <CheckCircle2 className="mr-1 h-4 w-4" />{" "}
+            {pending ? "Updating..." : "Complete"}
           </Button>
         )}
       </div>
