@@ -9,6 +9,16 @@ type Params = {
   }>;
 };
 
+function toArrayBufferBody(value: Uint8Array | Buffer | null | undefined) {
+  if (!value) {
+    return null;
+  }
+
+  const bytes = value instanceof Uint8Array ? value : new Uint8Array(value);
+
+  return bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength) as ArrayBuffer;
+}
+
 export async function GET(
   request: NextRequest,
   { params }: Params
@@ -45,7 +55,7 @@ export async function GET(
       });
     }
 
-    return new NextResponse(typedOffer.offerPdf, {
+    return new NextResponse(toArrayBufferBody(typedOffer.offerPdf) ?? undefined, {
       headers: {
         "Content-Type": typedOffer.offerMimeType ?? "application/pdf",
         "Content-Disposition": `inline; filename="${typedOffer.offerFileName}"`,
@@ -60,7 +70,7 @@ export async function GET(
       });
     }
 
-    return new NextResponse(typedOffer.ndaPdf, {
+    return new NextResponse(toArrayBufferBody(typedOffer.ndaPdf) ?? undefined, {
       headers: {
         "Content-Type": typedOffer.ndaMimeType ?? "application/pdf",
         "Content-Disposition": `inline; filename="${typedOffer.ndaFileName}"`,
