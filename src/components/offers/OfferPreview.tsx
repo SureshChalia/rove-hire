@@ -119,12 +119,12 @@ export default function OfferPreview({ offer, candidates }: Props) {
 
       <div className="mt-6 grid gap-3 sm:grid-cols-2">
         <Button asChild size="lg">
-          <a href={offer.offerPdfUrl} download>
+          <a href={`/api/offers/${offer.id}/offer`} target="_blank" download>
             <Download className="mr-2 h-4 w-4" /> Download Offer Letter
           </a>
         </Button>
         <Button asChild size="lg" variant="outline">
-          <a href={offer.ndaPdfUrl} download>
+          <a href={`/api/offers/${offer.id}/nda`} target="_blank" download>
             <Download className="mr-2 h-4 w-4" /> Download NDA
           </a>
         </Button>

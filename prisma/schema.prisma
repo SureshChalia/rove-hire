@@ -93,10 +93,16 @@ model OfferDocument {
   startDate        DateTime
   reportingManager String
   location         String
-  offerPdfUrl      String
-  ndaPdfUrl        String
   createdAt        DateTime  @default(now())
   candidateId      String
+  ndaFileName      String?
+  ndaFileSize      Int?
+  ndaMimeType      String?
+  ndaPdf           Bytes?
+  offerFileName    String?
+  offerFileSize    Int?
+  offerMimeType    String?
+  offerPdf         Bytes?
   candidate        Candidate @relation(fields: [candidateId], references: [id], onDelete: Cascade)
 }
 

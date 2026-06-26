@@ -1,3 +1,5 @@
+import type { CandidateRecord } from "./candidate";
+
 export type OfferStatus = "Sent" | "Accepted" | "Rejected";
 
 export interface OfferCandidateSummary {
@@ -18,27 +20,45 @@ export interface OfferRecord {
   startDate: Date;
   reportingManager: string;
   location: string;
-  offerPdfUrl: string;
-  ndaPdfUrl: string;
+  offerPdf?: Buffer | null;
+  ndaPdf?: Buffer | null;
+  offerFileName?: string | null;
+  offerMimeType?: string | null;
+  offerFileSize?: number | null;
+  ndaFileName?: string | null;
+  ndaMimeType?: string | null;
+  ndaFileSize?: number | null;
   createdAt: Date;
   candidateId: string;
-  candidate: OfferCandidateSummary;
+  candidate: CandidateRecord;
 }
 
 export interface CreateOfferPayload {
   candidateId: string;
+
   roleTitle: string;
   salary: string;
   startDate: Date;
+
   reportingManager: string;
   location: string;
-  offerPdfUrl: string;
-  ndaPdfUrl: string;
+
+  offerPdf?: Buffer;
+  offerFileName?: string;
+  offerMimeType?: string;
+  offerFileSize?: number;
+
+  ndaPdf?: Buffer;
+  ndaFileName?: string;
+  ndaMimeType?: string;
+  ndaFileSize?: number;
 }
 
-export interface UpdateOfferPayload extends CreateOfferPayload {
+export interface UpdateOfferPayload
+  extends Partial<CreateOfferPayload> {
   id: string;
 }
+
 
 export interface OfferFormValues {
   candidateId: string;

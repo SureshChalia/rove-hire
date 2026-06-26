@@ -103,12 +103,12 @@ export default function OfferCard({ offer, candidates }: Props) {
 
       <div className="mt-5 grid grid-cols-2 gap-2">
         <Button asChild size="sm" variant="outline">
-          <a href={offer.offerPdfUrl} download>
+          <a href={`/api/offers/${offer.id}/offer`} download>
             <Download className="mr-1 h-4 w-4" /> Offer Letter
           </a>
         </Button>
         <Button asChild size="sm" variant="outline">
-          <a href={offer.ndaPdfUrl} download>
+          <a href={`/api/offers/${offer.id}/nda`}download>
             <Download className="mr-1 h-4 w-4" /> NDA
           </a>
         </Button>

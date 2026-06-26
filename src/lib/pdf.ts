@@ -1,5 +1,3 @@
-import { mkdir, unlink, writeFile } from "fs/promises";
-import path from "path";
 import {
   PDFDocument,
   PDFFont,
@@ -246,27 +244,19 @@ export async function saveOfferPdf(
   candidateName: string,
   documentType: "offer-letter" | "nda"
 ) {
-  const uploadDir = path.join(process.cwd(), "public", "uploads", "offers");
-  await mkdir(uploadDir, { recursive: true });
-
   const safeName =
     candidateName.replace(/[^a-zA-Z0-9]+/g, "-").replace(/^-|-$/g, "") ||
     "candidate";
-  const fileName = `${Date.now()}-${safeName}-${documentType}.pdf`;
 
-  await writeFile(path.join(uploadDir, fileName), Buffer.from(bytes));
-
-  return `/uploads/offers/${fileName}`;
+  return {
+    fileName: `${safeName}-${documentType}.pdf`,
+    mimeType: "application/pdf",
+    fileSize: bytes.length,
+    data: Buffer.from(bytes),
+  };
 }
 
-export async function deleteOfferPdf(pdfUrl?: string | null) {
-  if (!pdfUrl?.startsWith("/uploads/offers/")) return;
-
-  const filePath = path.join(process.cwd(), "public", pdfUrl);
-
-  try {
-    await unlink(filePath);
-  } catch {
-    // The database record can still be removed if an old local file is absent.
-  }
+export async function deleteOfferPdf() {
+  // PDFs are stored inside PostgreSQL.
+  // Nothing to delete from disk.
 }

@@ -3,11 +3,11 @@
 import { revalidatePath } from "next/cache";
 
 import {
-  deleteOfferPdf,
   generateNdaPdf,
   generateOfferLetterPdf,
   saveOfferPdf,
 } from "@/lib/pdf";
+
 import { getCandidateById } from "@/services/candidate.service";
 import {
   createOffer,
@@ -39,24 +39,22 @@ async function createDocuments(input: OfferPdfInput) {
     generateNdaPdf(input),
   ]);
 
-  const offerPdfUrl = await saveOfferPdf(
+  const offerPdf = await saveOfferPdf(
     offerBytes,
     input.candidateName,
     "offer-letter"
   );
 
-  try {
-    const ndaPdfUrl = await saveOfferPdf(
-      ndaBytes,
-      input.candidateName,
-      "nda"
-    );
+  const ndaPdf = await saveOfferPdf(
+    ndaBytes,
+    input.candidateName,
+    "nda"
+  );
 
-    return { offerPdfUrl, ndaPdfUrl };
-  } catch (error) {
-    await deleteOfferPdf(offerPdfUrl);
-    throw error;
-  }
+  return {
+    offerPdf,
+    ndaPdf,
+  };
 }
 
 async function readOfferForm(formData: FormData) {
@@ -106,11 +104,10 @@ async function readOfferForm(formData: FormData) {
 export async function createOfferAction(
   formData: FormData
 ): Promise<OfferActionResult> {
-  let documents: { offerPdfUrl: string; ndaPdfUrl: string } | null = null;
-
   try {
     const data = await readOfferForm(formData);
-    documents = await createDocuments({
+
+    const documents = await createDocuments({
       candidateName: data.candidate.name,
       candidateEmail: data.candidate.email,
       roleTitle: data.roleTitle,
@@ -123,29 +120,37 @@ export async function createOfferAction(
 
     await createOffer({
       candidateId: data.candidateId,
+
       roleTitle: data.roleTitle,
       salary: data.salary,
       startDate: data.startDate,
+
       reportingManager: data.reportingManager,
       location: data.location,
-      offerPdfUrl: documents.offerPdfUrl,
-      ndaPdfUrl: documents.ndaPdfUrl,
+
+      offerPdf: documents.offerPdf.data,
+      offerFileName: documents.offerPdf.fileName,
+      offerMimeType: documents.offerPdf.mimeType,
+      offerFileSize: documents.offerPdf.fileSize,
+
+      ndaPdf: documents.ndaPdf.data,
+      ndaFileName: documents.ndaPdf.fileName,
+      ndaMimeType: documents.ndaPdf.mimeType,
+      ndaFileSize: documents.ndaPdf.fileSize,
     });
 
     revalidateOfferPaths();
-    return { success: true };
-  } catch (error) {
-    if (documents) {
-      await Promise.all([
-        deleteOfferPdf(documents.offerPdfUrl),
-        deleteOfferPdf(documents.ndaPdfUrl),
-      ]);
-    }
 
+    return {
+      success: true,
+    };
+  } catch (error) {
     return {
       success: false,
       message:
-        error instanceof Error ? error.message : "Unable to create the offer.",
+        error instanceof Error
+          ? error.message
+          : "Unable to create the offer.",
     };
   }
 }
@@ -153,8 +158,6 @@ export async function createOfferAction(
 export async function updateOfferAction(
   formData: FormData
 ): Promise<OfferActionResult> {
-  let documents: { offerPdfUrl: string; ndaPdfUrl: string } | null = null;
-
   try {
     const id = getString(formData, "id");
 
@@ -171,7 +174,7 @@ export async function updateOfferAction(
       throw new Error("Offer not found.");
     }
 
-    documents = await createDocuments({
+    const documents = await createDocuments({
       candidateName: data.candidate.name,
       candidateEmail: data.candidate.email,
       roleTitle: data.roleTitle,
@@ -184,35 +187,39 @@ export async function updateOfferAction(
 
     await updateOffer({
       id,
+
       candidateId: data.candidateId,
+
       roleTitle: data.roleTitle,
       salary: data.salary,
       startDate: data.startDate,
+
       reportingManager: data.reportingManager,
       location: data.location,
-      offerPdfUrl: documents.offerPdfUrl,
-      ndaPdfUrl: documents.ndaPdfUrl,
+
+      offerPdf: documents.offerPdf.data,
+      offerFileName: documents.offerPdf.fileName,
+      offerMimeType: documents.offerPdf.mimeType,
+      offerFileSize: documents.offerPdf.fileSize,
+
+      ndaPdf: documents.ndaPdf.data,
+      ndaFileName: documents.ndaPdf.fileName,
+      ndaMimeType: documents.ndaPdf.mimeType,
+      ndaFileSize: documents.ndaPdf.fileSize,
     });
 
-    await Promise.all([
-      deleteOfferPdf(currentOffer.offerPdfUrl),
-      deleteOfferPdf(currentOffer.ndaPdfUrl),
-    ]);
-
     revalidateOfferPaths(id);
-    return { success: true };
-  } catch (error) {
-    if (documents) {
-      await Promise.all([
-        deleteOfferPdf(documents.offerPdfUrl),
-        deleteOfferPdf(documents.ndaPdfUrl),
-      ]);
-    }
 
+    return {
+      success: true,
+    };
+  } catch (error) {
     return {
       success: false,
       message:
-        error instanceof Error ? error.message : "Unable to update the offer.",
+        error instanceof Error
+          ? error.message
+          : "Unable to update the offer.",
     };
   }
 }
@@ -228,18 +235,19 @@ export async function deleteOfferAction(
     }
 
     await deleteOffer(id);
-    await Promise.all([
-      deleteOfferPdf(offer.offerPdfUrl),
-      deleteOfferPdf(offer.ndaPdfUrl),
-    ]);
 
     revalidateOfferPaths(id);
-    return { success: true };
+
+    return {
+      success: true,
+    };
   } catch (error) {
     return {
       success: false,
       message:
-        error instanceof Error ? error.message : "Unable to delete the offer.",
+        error instanceof Error
+          ? error.message
+          : "Unable to delete the offer.",
     };
   }
 }
