@@ -6,6 +6,7 @@ import { ExternalLink, MessageSquareQuote, Star } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { completeInterviewAction } from "@/actions/interview.actions";
+import type { Recommendation } from "@/types/interview";
 
 interface Props {
   interview: {
@@ -18,7 +19,7 @@ interface Props {
     type: "Screening" | "Technical";
     notes?: string | null;
     status: "Scheduled" | "Completed" | "Cancelled";
-    recommendation?: "Hire" | "Maybe" |  "NoHire" | null;
+    recommendation?: Recommendation | null;
     feedback?: string | null;
     rating?: number | null;
     candidate?: {
@@ -35,7 +36,7 @@ interface Props {
 
 export default function InterviewDetails({ interview }: Props) {
   const [pending, startTransition] = useTransition();
-  const [recommendation, setRecommendation] = useState<"Hire" | "Maybe" |  "NoHire">("Hire");
+  const [recommendation, setRecommendation] = useState<Recommendation>("Hire");
   const [feedback, setFeedback] = useState("");
   const [rating, setRating] = useState(5);
 
@@ -109,7 +110,7 @@ export default function InterviewDetails({ interview }: Props) {
                 <select
                   className="mt-1 flex h-10 w-full rounded-lg border border-input bg-background px-3 py-2 text-sm shadow-sm outline-none"
                   value={recommendation}
-                  onChange={(event) => setRecommendation(event.target.value as "Hire" | "Maybe" |  "NoHire")}
+                  onChange={(event) => setRecommendation(event.target.value as Recommendation)}
                 >
                   <option value="Hire">Hire</option>
                   <option value="Maybe">Maybe</option>
