@@ -54,7 +54,7 @@ export default function CandidateDetails({ candidate }: Props) {
 
           {candidate.resumeUrl ? (
             <Button asChild variant="outline">
-              <a href={candidate.resumeUrl} target="_blank" rel="noreferrer">
+              <a href={`/api/resume/${candidate.id}`} target="_blank" rel="noreferrer">
                 <Download className="mr-2 h-4 w-4" /> Download Resume
               </a>
             </Button>

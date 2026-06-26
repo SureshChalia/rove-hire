@@ -6,10 +6,7 @@ import {
   applicationSchema,
   startApplicationSchema,
 } from "@/lib/application-validation";
-import {
-  deleteCandidateResume,
-  saveCandidateResume,
-} from "@/lib/resume";
+
 import {
   createCandidate,
   deleteCandidate,
@@ -23,7 +20,22 @@ function getString(formData: FormData, key: string) {
 }
 
 export async function createCandidateAction(formData: FormData) {
-  const resumeUrl = await saveCandidateResume(formData.get("resume") as File | null);
+
+  const resume = formData.get("resume") as File | null;
+
+  let resumeUrl = "";
+
+  if (resume && resume.size > 0) {
+    if (resume.type !== "application/pdf") {
+      throw new Error("Resume must be PDF");
+    }
+
+    if (resume.size > 5 * 1024 * 1024) {
+      throw new Error("Resume too large");
+    }
+
+    resumeUrl = Buffer.from(await resume.arrayBuffer()).toString("base64");
+  }
 
   const candidate = await createCandidate({
     name: getString(formData, "name"),
@@ -48,11 +60,25 @@ export async function createCandidateAction(formData: FormData) {
 
 export async function updateCandidateAction(formData: FormData) {
   const id = getString(formData, "id");
+
   const resumeFile = formData.get("resume") as File | null;
   const existingResumeUrl = getString(formData, "existingResumeUrl");
-  const resumeUrl = resumeFile && resumeFile.size > 0
-    ? await saveCandidateResume(resumeFile)
-    : existingResumeUrl;
+
+  let resumeUrl = existingResumeUrl;
+
+  if (resumeFile && resumeFile.size > 0) {
+    if (resumeFile.type !== "application/pdf") {
+      throw new Error("Resume must be a PDF.");
+    }
+
+    if (resumeFile.size > 5 * 1024 * 1024) {
+      throw new Error("Resume must be smaller than 5 MB.");
+    }
+
+    resumeUrl = Buffer.from(
+      await resumeFile.arrayBuffer()
+    ).toString("base64");
+  }
 
   await updateCandidate({
     id,
@@ -136,11 +162,21 @@ export async function submitApplicationAction(
   let resumeUrl = "";
 
   try {
-    resumeUrl = await saveCandidateResume(formData.get("resume") as File | null);
+    const resume = formData.get("resume") as File | null;
 
-    if (!resumeUrl) {
+    if (!resume || resume.size === 0) {
       throw new Error("Upload your resume as a PDF.");
     }
+
+    if (resume.type !== "application/pdf") {
+      throw new Error("Resume must be a PDF.");
+    }
+
+    if (resume.size > 5 * 1024 * 1024) {
+      throw new Error("Resume must be smaller than 5 MB.");
+    }
+
+    resumeUrl = Buffer.from(await resume.arrayBuffer()).toString("base64");
 
     const candidate = await submitCandidateApplication(token, {
       ...result.data,
@@ -157,7 +193,7 @@ export async function submitApplicationAction(
     };
   } catch (error) {
     if (resumeUrl) {
-      await deleteCandidateResume(resumeUrl);
+      console.log("Resume upload failed, but resumeUrl is set. Consider deleting the uploaded resume from storage.");
     }
 
     return {

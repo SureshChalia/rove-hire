@@ -232,71 +232,64 @@ export async function submitCandidateApplication(
     resumeUrl: string;
   }
 ) {
-  return prisma.$transaction(async (tx) => {
-    const candidate = await tx.candidate.findFirst({
-      where: {
-        magicToken: token,
-        tokenExpiry: {
-          gt: new Date(),
-        },
-        formSubmitted: false,
+  const candidate = await prisma.candidate.findFirst({
+    where: {
+      magicToken: token,
+      tokenExpiry: {
+        gt: new Date(),
       },
-      select: {
-        id: true,
-        jobId: true,
-      },
-    });
+      formSubmitted: false,
+    },
+    select: {
+      id: true,
+      jobId: true,
+    },
+  });
 
-    if (!candidate) {
-      throw new Error("This application link is invalid, expired, or already used.");
-    }
+  if (!candidate) {
+    throw new Error(
+      "This application link is invalid, expired, or already used."
+    );
+  }
 
-    const job = await tx.job.findFirst({
-      where: {
-        id: candidate.jobId,
-        status: "Open",
-      },
-      select: {
-        id: true,
-      },
-    });
+  const job = await prisma.job.findFirst({
+    where: {
+      id: candidate.jobId,
+      status: "Open",
+    },
+    select: {
+      id: true,
+    },
+  });
 
-    if (!job) {
-      throw new Error("This position is no longer accepting applications.");
-    }
+  if (!job) {
+    throw new Error("This position is no longer accepting applications.");
+  }
 
-    const update = await tx.candidate.updateMany({
-      where: {
-        id: candidate.id,
-        magicToken: token,
-        tokenExpiry: {
-          gt: new Date(),
-        },
-        formSubmitted: false,
-      },
-      data: {
-        ...data,
-        formSubmitted: true,
-        status: "FormSubmitted",
-      },
-    });
+  await prisma.candidate.update({
+    where: {
+      id: candidate.id,
+    },
+    data: {
+      ...data,
+      formSubmitted: true,
+      status: "FormSubmitted",
+      magicToken: null,
+      tokenExpiry: null,
+    },
+  });
 
-    if (update.count !== 1) {
-      throw new Error("This application link has already been used.");
-    }
+  await prisma.timeline.create({
+    data: {
+      candidateId: candidate.id,
+      title: "Form Submitted",
+      description: "Candidate completed the public application form.",
+    },
+  });
 
-    await tx.timeline.create({
-      data: {
-        candidateId: candidate.id,
-        title: "Form Submitted",
-        description: "Candidate completed the public application form.",
-      },
-    });
-
-    return tx.candidate.findUniqueOrThrow({
-      where: {
-        id: candidate.id,
-      },
-    });
+  return prisma.candidate.findUniqueOrThrow({
+    where: {
+      id: candidate.id,
+    },
   });
 }

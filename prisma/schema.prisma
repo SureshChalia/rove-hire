@@ -7,14 +7,107 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model User {
+  id        String   @id @default(cuid())
+  name      String
+  email     String   @unique
+  password  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  jobs      Job[]
+}
+
+model Job {
+  id             String      @id @default(cuid())
+  title          String
+  description    String
+  skills         String[]
+  status         JobStatus   @default(Open)
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
+  createdById    String
+  department     String?
+  employmentType String?
+  experience     String?
+  location       String?
+  salary         String?
+  candidates     Candidate[]
+  createdBy      User        @relation(fields: [createdById], references: [id], onDelete: Cascade)
+}
+
+model Candidate {
+  id                String          @id @default(cuid())
+  name              String
+  email             String          @unique
+  phone             String?
+  location          String?
+  currentRole       String?
+  noticePeriod      String?
+  salaryExpectation String?
+  linkedin          String?
+  resumeUrl         String
+  status            CandidateStatus @default(Applied)
+  magicToken        String?         @unique
+  tokenExpiry       DateTime?
+  formSubmitted     Boolean         @default(false)
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+  jobId             String
+  job               Job             @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  interviews        Interview[]
+  documents         OfferDocument[]
+  timelines         Timeline[]
+}
+
+model Interview {
+  id             String          @id @default(cuid())
+  interviewDate  DateTime
+  interviewer    String
+  type           InterviewType
+  notes          String?
+  status         InterviewStatus @default(Scheduled)
+  recommendation Recommendation?
+  feedback       String?
+  createdAt      DateTime        @default(now())
+  candidateId    String
+  interviewTime  String?
+  duration       String?
+  meetingLink    String?
+  rating         Int?
+  candidate      Candidate       @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+}
+
+model Timeline {
+  id          String    @id @default(cuid())
+  title       String
+  description String?
+  createdAt   DateTime  @default(now())
+  candidateId String
+  candidate   Candidate @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+}
+
+model OfferDocument {
+  id               String    @id @default(cuid())
+  roleTitle        String
+  salary           String
+  startDate        DateTime
+  reportingManager String
+  location         String
+  offerPdfUrl      String
+  ndaPdfUrl        String
+  createdAt        DateTime  @default(now())
+  candidateId      String
+  candidate        Candidate @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+}
+
 enum CandidateStatus {
   Applied
   FormSubmitted
   InterviewScheduled
-  InterviewCompleted
   OfferSent
   Hired
   Rejected
+  InterviewCompleted
 }
 
 enum JobStatus {
@@ -36,131 +129,5 @@ enum InterviewStatus {
 enum Recommendation {
   Hire
   Maybe
-  Reject
-}
-
-model User {
-  id        String   @id @default(cuid())
-  name      String
-  email     String   @unique
-  password  String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  jobs Job[]
-}
-
-model Job {
-  id          String    @id @default(cuid())
-  title       String
-  description String    @db.Text
-  skills      String[]
-  status      JobStatus @default(Open)
-  department     String?
-  location       String?
-  employmentType String?
-  experience     String?
-  salary         String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  createdById String
-  createdBy   User   @relation(fields: [createdById], references: [id], onDelete: Cascade)
-
-  candidates Candidate[]
-}
-
-model Candidate {
-  id String @id @default(cuid())
-
-  name  String
-  email String @unique
-
-  phone             String?
-  location          String?
-  currentRole       String?
-  noticePeriod      String?
-  salaryExpectation String?
-  linkedin          String?
-
-  resumeUrl String
-
-  status CandidateStatus @default(Applied)
-
-  magicToken    String?   @unique
-  tokenExpiry   DateTime?
-  formSubmitted Boolean   @default(false)
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  jobId String
-  job   Job    @relation(fields: [jobId], references: [id], onDelete: Cascade)
-
-  interviews Interview[]
-  timelines  Timeline[]
-  documents  OfferDocument[]
-}
-
-model Interview {
-  id String @id @default(cuid())
-
-  interviewDate DateTime
-  interviewTime String
-  duration String
-  meetingLink String?
-
-  interviewer String
-
-  type InterviewType
-
-  notes String? @db.Text
-
-  status InterviewStatus @default(Scheduled)
-
-  recommendation Recommendation?
-
-  feedback String? @db.Text
-  rating Int?
-
-  createdAt DateTime @default(now())
-
-  candidateId String
-  candidate   Candidate @relation(fields: [candidateId], references: [id], onDelete: Cascade)
-}
-
-model Timeline {
-  id String @id @default(cuid())
-
-  title String
-
-  description String? @db.Text
-
-  createdAt DateTime @default(now())
-
-  candidateId String
-  candidate   Candidate @relation(fields: [candidateId], references: [id], onDelete: Cascade)
-}
-
-model OfferDocument {
-  id String @id @default(cuid())
-
-  roleTitle String
-
-  salary String
-
-  startDate DateTime
-
-  reportingManager String
-
-  location String
-
-  offerPdfUrl String
-
-  ndaPdfUrl String
-
-  createdAt DateTime @default(now())
-
-  candidateId String
-  candidate   Candidate @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+  NoHire
 }
