@@ -19,51 +19,51 @@ export async function GET(
     where: {
       id,
     },
-    select: {
-      offerPdf: true,
-      offerFileName: true,
-      offerMimeType: true,
-
-      ndaPdf: true,
-      ndaFileName: true,
-      ndaMimeType: true,
-    },
   });
 
-  if (!offer) {
+  const typedOffer = offer as
+    | (typeof offer & {
+        offerPdf?: Uint8Array | Buffer | null;
+        offerFileName?: string | null;
+        offerMimeType?: string | null;
+        ndaPdf?: Uint8Array | Buffer | null;
+        ndaFileName?: string | null;
+        ndaMimeType?: string | null;
+      })
+    | null;
+
+  if (!typedOffer) {
     return new NextResponse("Offer not found", {
       status: 404,
     });
   }
 
   if (type === "offer") {
-    if (!offer.offerPdf) {
+    if (!typedOffer.offerPdf) {
       return new NextResponse("Offer PDF not found", {
         status: 404,
       });
     }
 
-    return new NextResponse(offer.offerPdf, {
+    return new NextResponse(typedOffer.offerPdf, {
       headers: {
-        "Content-Type":
-          offer.offerMimeType ?? "application/pdf",
-        "Content-Disposition": `inline; filename="${offer.offerFileName}"`,
+        "Content-Type": typedOffer.offerMimeType ?? "application/pdf",
+        "Content-Disposition": `inline; filename="${typedOffer.offerFileName}"`,
       },
     });
   }
 
   if (type === "nda") {
-    if (!offer.ndaPdf) {
+    if (!typedOffer.ndaPdf) {
       return new NextResponse("NDA PDF not found", {
         status: 404,
       });
     }
 
-    return new NextResponse(offer.ndaPdf, {
+    return new NextResponse(typedOffer.ndaPdf, {
       headers: {
-        "Content-Type":
-          offer.ndaMimeType ?? "application/pdf",
-        "Content-Disposition": `inline; filename="${offer.ndaFileName}"`,
+        "Content-Type": typedOffer.ndaMimeType ?? "application/pdf",
+        "Content-Disposition": `inline; filename="${typedOffer.ndaFileName}"`,
       },
     });
   }
