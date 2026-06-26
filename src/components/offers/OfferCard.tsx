@@ -108,7 +108,7 @@ export default function OfferCard({ offer, candidates }: Props) {
           </a>
         </Button>
         <Button asChild size="sm" variant="outline">
-          <a href={`/api/offers/${offer.id}/nda`}download>
+          <a href={`/api/offers/${offer.id}/nda`} download>
             <Download className="mr-1 h-4 w-4" /> NDA
           </a>
         </Button>

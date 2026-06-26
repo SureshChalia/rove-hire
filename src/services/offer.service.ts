@@ -1,6 +1,8 @@
+import { CandidateStatus } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import type {
   CreateOfferPayload,
+  OfferPdfBytes,
   OfferRecord,
   UpdateOfferPayload,
 } from "@/types/offer";
@@ -12,6 +14,19 @@ const offerInclude = {
     },
   },
 } as const;
+
+function toUint8Array(value: OfferPdfBytes): Uint8Array<ArrayBuffer> {
+  if (value instanceof Uint8Array) {
+    const bytes = value.buffer.slice(
+      value.byteOffset,
+      value.byteOffset + value.byteLength
+    ) as ArrayBuffer;
+
+    return new Uint8Array(bytes) as Uint8Array<ArrayBuffer>;
+  }
+
+  return new Uint8Array(value.slice(0)) as Uint8Array<ArrayBuffer>;
+}
 
 export async function getOffers(search?: string) {
   const offers = await prisma.offerDocument.findMany({
@@ -56,7 +71,7 @@ export async function getOfferById(id: string) {
 }
 
 export async function createOffer(data: CreateOfferPayload) {
-  return prisma.$transaction(async (tx: { offerDocument: { create: (arg0: { data: { candidateId: string; roleTitle: string; salary: string; startDate: Date; reportingManager: string; location: string; offerPdf: Buffer<ArrayBuffer>; offerFileName: string; offerMimeType: string; offerFileSize: number; ndaPdf: Buffer<ArrayBuffer>; ndaFileName: string; ndaMimeType: string; ndaFileSize: number; }; include: { readonly candidate: { readonly include: { readonly job: true; }; }; }; }) => any; }; candidate: { update: (arg0: { where: { id: string; }; data: { status: string; }; }) => any; }; timeline: { create: (arg0: { data: { candidateId: string; title: string; description: string; }; }) => any; }; }) => {
+  return prisma.$transaction(async (tx) => {
     const offer = await tx.offerDocument.create({
       data: {
         candidateId: data.candidateId,
@@ -65,11 +80,11 @@ export async function createOffer(data: CreateOfferPayload) {
         startDate: data.startDate,
         reportingManager: data.reportingManager,
         location: data.location,
-        offerPdf: Buffer.from(data.offerPdf),
+        offerPdf: toUint8Array(data.offerPdf),
         offerFileName: data.offerFileName,
         offerMimeType: data.offerMimeType,
         offerFileSize: data.offerFileSize,
-        ndaPdf: Buffer.from(data.ndaPdf),
+        ndaPdf: toUint8Array(data.ndaPdf),
         ndaFileName: data.ndaFileName,
         ndaMimeType: data.ndaMimeType,
         ndaFileSize: data.ndaFileSize,
@@ -82,7 +97,7 @@ export async function createOffer(data: CreateOfferPayload) {
         id: data.candidateId,
       },
       data: {
-        status: "OfferSent",
+        status: CandidateStatus.OfferSent,
       },
     });
 
@@ -99,7 +114,7 @@ export async function createOffer(data: CreateOfferPayload) {
 }
 
 export async function updateOffer(data: UpdateOfferPayload) {
-  return prisma.$transaction(async (tx: { offerDocument: { findUnique: (arg0: { where: { id: string; }; }) => any; update: (arg0: { where: { id: string; }; data: { candidateId: string; roleTitle: string; salary: string; startDate: Date; reportingManager: string; location: string; offerPdf: Buffer<ArrayBuffer>; offerFileName: string; offerMimeType: string; offerFileSize: number; ndaPdf: Buffer<ArrayBuffer>; ndaFileName: string; ndaMimeType: string; ndaFileSize: number; }; include: { readonly candidate: { readonly include: { readonly job: true; }; }; }; }) => any; }; candidate: { update: (arg0: { where: { id: string; }; data: { status: string; }; }) => any; }; timeline: { create: (arg0: { data: { candidateId: string; title: string; description: string; }; }) => any; }; }) => {
+  return prisma.$transaction(async (tx) => {
     const currentOffer = await tx.offerDocument.findUnique({
       where: {
         id: data.id,
@@ -121,11 +136,11 @@ export async function updateOffer(data: UpdateOfferPayload) {
         startDate: data.startDate,
         reportingManager: data.reportingManager,
         location: data.location,
-        offerPdf: Buffer.from(data.offerPdf),
+        offerPdf: toUint8Array(data.offerPdf),
         offerFileName: data.offerFileName,
         offerMimeType: data.offerMimeType,
         offerFileSize: data.offerFileSize,
-        ndaPdf: Buffer.from(data.ndaPdf),
+        ndaPdf: toUint8Array(data.ndaPdf),
         ndaFileName: data.ndaFileName,
         ndaMimeType: data.ndaMimeType,
         ndaFileSize: data.ndaFileSize,
@@ -139,7 +154,7 @@ export async function updateOffer(data: UpdateOfferPayload) {
           id: data.candidateId,
         },
         data: {
-          status: "OfferSent",
+          status: CandidateStatus.OfferSent,
         },
       });
 
@@ -165,7 +180,7 @@ export async function deleteOffer(id: string) {
 }
 
 export async function markOfferAccepted(id: string) {
-  return prisma.$transaction(async (tx: { offerDocument: { findUnique: (arg0: { where: { id: string; }; include: { readonly candidate: { readonly include: { readonly job: true; }; }; }; }) => any; }; candidate: { update: (arg0: { where: { id: any; }; data: { status: string; }; }) => any; }; timeline: { create: (arg0: { data: { candidateId: any; title: string; description: string; }; }) => any; }; }) => {
+  return prisma.$transaction(async (tx) => {
     const offer = await tx.offerDocument.findUnique({
       where: {
         id,
@@ -177,13 +192,13 @@ export async function markOfferAccepted(id: string) {
       throw new Error("Offer not found");
     }
 
-    if (offer.candidate.status !== "Hired") {
+    if (offer.candidate.status !== CandidateStatus.Hired) {
       await tx.candidate.update({
         where: {
           id: offer.candidateId,
         },
         data: {
-          status: "Hired",
+          status: CandidateStatus.Hired,
         },
       });
 
@@ -201,7 +216,7 @@ export async function markOfferAccepted(id: string) {
 }
 
 export async function markOfferRejected(id: string) {
-  return prisma.$transaction(async (tx: { offerDocument: { findUnique: (arg0: { where: { id: string; }; include: { readonly candidate: { readonly include: { readonly job: true; }; }; }; }) => any; }; candidate: { update: (arg0: { where: { id: any; }; data: { status: string; }; }) => any; }; timeline: { create: (arg0: { data: { candidateId: any; title: string; description: string; }; }) => any; }; }) => {
+  return prisma.$transaction(async (tx) => {
     const offer = await tx.offerDocument.findUnique({
       where: {
         id,
@@ -213,13 +228,13 @@ export async function markOfferRejected(id: string) {
       throw new Error("Offer not found");
     }
 
-    if (offer.candidate.status !== "Rejected") {
+    if (offer.candidate.status !== CandidateStatus.Rejected) {
       await tx.candidate.update({
         where: {
           id: offer.candidateId,
         },
         data: {
-          status: "Rejected",
+          status: CandidateStatus.Rejected,
         },
       });
 

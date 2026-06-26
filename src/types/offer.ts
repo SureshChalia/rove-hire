@@ -1,6 +1,7 @@
 import type { CandidateRecord } from "./candidate";
 
 export type OfferStatus = "Sent" | "Accepted" | "Rejected";
+export type OfferPdfBytes = Uint8Array | ArrayBuffer;
 
 export interface OfferCandidateSummary {
   id: string;
@@ -20,8 +21,8 @@ export interface OfferRecord {
   startDate: Date;
   reportingManager: string;
   location: string;
- offerPdf?: Uint8Array | null;
-  ndaPdf?: Uint8Array | null;
+  offerPdf?: OfferPdfBytes | null;
+  ndaPdf?: OfferPdfBytes | null;
   offerFileName?: string | null;
   offerMimeType?: string | null;
   offerFileSize?: number | null;
@@ -43,12 +44,12 @@ export interface CreateOfferPayload {
   reportingManager: string;
   location: string;
 
-  offerPdf: Uint8Array;
+  offerPdf: OfferPdfBytes;
   offerFileName: string;
   offerMimeType: string;
   offerFileSize: number;
 
-  ndaPdf: Uint8Array;
+  ndaPdf: OfferPdfBytes;
   ndaFileName: string;
   ndaMimeType: string;
   ndaFileSize: number;
